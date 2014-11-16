@@ -4,16 +4,27 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-multi-forever');
+    grunt.loadNpmTasks('grunt-react');
 
     var ejs = require('browserify-ejs');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        react: {
+          files: {
+            expand: true,
+            cwd: 'src/jsx/',
+            src: ['**/*.jsx'],
+            dest: 'src/js/react/',
+            ext: '.js'
+          }
+        },
         watch: {
-            files: [
-                './src/js/**/*.js'
-            ],
-            tasks: ['browserify2:compile']
+          files: [
+            './src/js/**/*.js',
+            './src/jsx/**/*.jsx'
+          ],
+          tasks: ['react','browserify2:compile']
         },
         browserify2: {
             options: {
@@ -34,7 +45,7 @@ module.exports = function (grunt) {
                 }
             },
             compile: {
-                entry: './src/js/app.js',
+                entry: './src/js/react/app.js',
                 compile: './src/js/app.production.js',
                 debug: true
             }
@@ -49,5 +60,5 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['browserify2:compile', 'forever', 'watch']);
+    grunt.registerTask('default', ['react', 'browserify2:compile', 'watch']);
 };
