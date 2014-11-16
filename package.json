@@ -1,0 +1,15 @@
+{
+  "name": "reactgif",
+  "description": "an exploration of reactjs and other things",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "~4.9.7",
+    "request": "~2.45.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-multi-forever": "~0.4.1",
+    "grunt-browserify2": "^0.1.8",
+    "ejsify": "0.0.2",
+    "browserify-ejs": "~0.0.2"
+  }
+}
