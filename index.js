@@ -2,6 +2,8 @@ var express = require('express');
 var gif = require('./js/microservices/gif');
 var app = express();
 
+app.set('port', (process.env.PORT || 8080))
+
 var getKeyGif = function (key, res) {
   gif.randomGif(function (gif) {
       res.json({gif: gif});
@@ -48,4 +50,4 @@ app.get('/jpg', function (req, res) {
   getKeyGif('.jpg', res);
 });
 
-app.listen(8080);
+app.listen(app.get('port'));
