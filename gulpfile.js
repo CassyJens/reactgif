@@ -16,3 +16,12 @@ gulp.task('default', function () {
 
     return this;
 });
+
+var watcher = gulp.watch(
+                    ['jsx/**/*.jsx', 'js/microservices/**/*.js'],
+                    ['default']
+                  );
+
+watcher.on('change', function(event) {
+  console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+});
