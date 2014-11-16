@@ -1,5 +1,5 @@
 var express = require('express');
-var gif = require('./src/js/service/gif');
+var gif = require('./js/microservices/gif');
 var app = express();
 
 var getKeyGif = function (key, res) {
