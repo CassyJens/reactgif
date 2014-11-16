@@ -7,7 +7,6 @@ $(function () {
   var DashItem = React.createClass({displayName: 'DashItem',
     handleClick: function (e) {
       var that = this;
-
       e.preventDefault();
       $.get(this.props.url, {key: this.props.title}, function (json) {
         that.props.updateImage(json.gif);
@@ -21,20 +20,41 @@ $(function () {
     }
   });
 
-  var ImageHeader = React.createClass({displayName: 'ImageHeader',
+  var ImageContainer = React.createClass({displayName: 'ImageContainer',
     render: function () {
       return (
-        React.createElement("h2", null, " ", this.props.title, " ")
+        React.createElement("div", {className: "image-container"}, 
+          React.createElement(MainImage, {url: this.props.url, loading: this.props.loading}), 
+          React.createElement(ImageText, {url: this.props.url, loading: this.props.loading})
+        )
       );
     }
   });
 
-  var ImageFrame = React.createClass({displayName: 'ImageFrame',
+  var ImageText = React.createClass({displayName: 'ImageText',
+      render: function () {
+        var text = this.props.loading ? 'loading...' : this.props.url;
+
+        return (
+            React.createElement("h2", null, " ", text, " ")
+        );
+      }
+  });
+
+  var MainImage = React.createClass({displayName: 'MainImage',
     render: function () {
-      console.log(this.props.url);
-      return (
-        React.createElement("img", {class: "image", src: this.props.url})
-      );
+      if (this.props.loading) {
+        return (
+          React.createElement("div", {id: "loader", className: "spinner"}, 
+            React.createElement("div", {className: "double-bounce1"}), 
+            React.createElement("div", {className: "double-bounce2"})
+          )
+        );
+      } else {
+        return (
+          React.createElement("img", {className: "image", src: this.props.url})
+        );
+      }
     }
   });
 
@@ -55,15 +75,15 @@ $(function () {
 
   var App = React.createClass({displayName: 'App',
     getInitialState: function () {
-      return {route: '', url: ''};
+      return {route: '', url: '', imageText: ''}; // TODO only should care about route
     },
 
-    updateImage: function (url) {
+    updateImage: function (url) { // TODO move this somewhere?
       var that = this;
+      this.setState({route: 'image', url: url, loading: true});
 
-      this.setState({route: 'image', url: url, imageTitle: '...loading'});
-      new imagesLoaded($('.image'), function () {
-        that.setState({imageTitle: url});
+      $('.image').imagesLoaded().done(function () {
+        that.setState({loading: false});
       });
     },
 
@@ -76,12 +96,9 @@ $(function () {
         return (
           React.createElement("div", {className: "image-view"}, 
             React.createElement(Dash, {updateImage: this.updateImage}), 
-            React.createElement("div", {className: "image-container"}, 
-              React.createElement(ImageHeader, {title: this.state.imageTitle}), 
-              React.createElement(ImageFrame, {url: this.state.url})
-            )
+            React.createElement(ImageContainer, {loading: this.state.loading, url: this.state.url})
           )
-        )
+        );
       }
     }
   });

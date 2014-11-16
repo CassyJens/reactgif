@@ -1,0 +1,9 @@
+body,
+html {
+  font-family: 'Montserrat', sans-serif;
+  background-color: #EEE;
+}
+
+.hidden {
+  display: none;
+}

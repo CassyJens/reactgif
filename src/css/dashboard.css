@@ -1,22 +1,13 @@
+/** Dashboard View **/
 .dashboard-item {
+  border-radius: 5px;
+  cursor: pointer;
   display: inline-block;
-  width: 50%;
   height: 200px;
-  text-align: center;
-  cursor: pointer;
   line-height: 200px;
-  vertical-align: middle;
-}
-
-.image-view .dashboard-item {
-  display: block;
-  width: 10%;
-  height: 100px;
   text-align: center;
-  cursor: pointer;
-  line-height: 100px;
   vertical-align: middle;
-  float: left;
+  width: 50%;
 }
 
 .dashboard-item:hover {

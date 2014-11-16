@@ -7,7 +7,6 @@ $(function () {
   var DashItem = React.createClass({
     handleClick: function (e) {
       var that = this;
-
       e.preventDefault();
       $.get(this.props.url, {key: this.props.title}, function (json) {
         that.props.updateImage(json.gif);
@@ -21,20 +20,41 @@ $(function () {
     }
   });
 
-  var ImageHeader = React.createClass({
+  var ImageContainer = React.createClass({
     render: function () {
       return (
-        <h2> {this.props.title} </h2>
+        <div className="image-container">
+          <MainImage url={this.props.url} loading={this.props.loading} />
+          <ImageText url={this.props.url} loading={this.props.loading} />
+        </div>
       );
     }
   });
 
-  var ImageFrame = React.createClass({
+  var ImageText = React.createClass({
+      render: function () {
+        var text = this.props.loading ? 'loading...' : this.props.url;
+
+        return (
+            <h2> {text} </h2>
+        );
+      }
+  });
+
+  var MainImage = React.createClass({
     render: function () {
-      console.log(this.props.url);
-      return (
-        <img class="image" src={this.props.url} />
-      );
+      if (this.props.loading) {
+        return (
+          <div id="loader" className="spinner">
+            <div className="double-bounce1"></div>
+            <div className="double-bounce2"></div>
+          </div>
+        );
+      } else {
+        return (
+          <img className="image" src={this.props.url} />
+        );
+      }
     }
   });
 
@@ -55,15 +75,15 @@ $(function () {
 
   var App = React.createClass({
     getInitialState: function () {
-      return {route: '', url: ''};
+      return {route: '', url: '', imageText: ''}; // TODO only should care about route
     },
 
-    updateImage: function (url) {
+    updateImage: function (url) { // TODO move this somewhere?
       var that = this;
+      this.setState({route: 'image', url: url, loading: true});
 
-      this.setState({route: 'image', url: url, imageTitle: '...loading'});
-      new imagesLoaded($('.image'), function () {
-        that.setState({imageTitle: url});
+      $('.image').imagesLoaded().done(function () {
+        that.setState({loading: false});
       });
     },
 
@@ -76,12 +96,9 @@ $(function () {
         return (
           <div className="image-view">
             <Dash updateImage={this.updateImage} />
-            <div className="image-container">
-              <ImageHeader title={this.state.imageTitle} />
-              <ImageFrame url={this.state.url} />
-            </div>
+            <ImageContainer loading={this.state.loading} url={this.state.url} />
           </div>
-        )
+        );
       }
     }
   });

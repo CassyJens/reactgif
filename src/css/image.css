@@ -1,0 +1,21 @@
+/** Image View **/
+.image-view .dashboard-items {
+  float: left;
+  width: 10%;
+  background-color: #DDD;
+}
+
+.image-view .dashboard-item {
+  border-radius: 0;
+  display: block;
+  height: 100px;
+  line-height: 100px;
+  width: 100%;
+}
+
+.image-container {
+  float: left;
+  padding-top: 30px;
+  text-align: center;
+  width: 90%;
+}
