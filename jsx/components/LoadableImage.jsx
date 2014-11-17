@@ -9,7 +9,7 @@ module.exports = React.createClass({
       );
     } else {
       return (
-        <img className="image" src={this.props.url} />
+        <img className="image" src={this.props.imgURL} />
       );
     }
   }

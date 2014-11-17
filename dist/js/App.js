@@ -6,59 +6,98 @@ module.exports = React.createClass({displayName: 'exports',
   render: function () {
     return (
       React.createElement("div", {className: "dashboard-items"}, 
-        React.createElement(DashItem, {title: "Random", url: "randomgif", updateImage: this.props.updateImage}), 
-        React.createElement(DashItem, {title: "GIF", url: "gif", updateImage: this.props.updateImage}), 
-        React.createElement(DashItem, {title: "JPG", url: "jpg", updateImage: this.props.updateImage}), 
-        React.createElement(DashItem, {title: "Cat", url: "cat", updateImage: this.props.updateImage}), 
-        React.createElement(DashItem, {title: "I", url: "i", updateImage: this.props.updateImage}), 
-        React.createElement(DashItem, {title: "You", url: "you", updateImage: this.props.updateImage})
+        React.createElement(DashItem, {title: "Random", url: "image/randomgif"}), 
+        React.createElement(DashItem, {title: "GIF", url: "image/gif"}), 
+        React.createElement(DashItem, {title: "JPG", url: "image/jpg"}), 
+        React.createElement(DashItem, {title: "Cat", url: "image/cat"}), 
+        React.createElement(DashItem, {title: "I", url: "image/i"}), 
+        React.createElement(DashItem, {title: "You", url: "image/you"})
       )
     );
   }
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/Dash.js","/")
-},{"./DashItem":2,"buffer":7,"oMfpAn":10}],2:[function(require,module,exports){
+},{"./DashItem":2,"buffer":8,"oMfpAn":11}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
-  handleClick: function (e) {
-    var that = this;
-    e.preventDefault();
-    $.get(this.props.url, {key: this.props.title}, function (json) {
-      that.props.updateImage(json.gif);
-    });
-  },
-
   render: function () {
     return (
-      React.createElement("a", {className: "dashboard-item", onClick: this.handleClick}, " ", this.props.title, " ")
+      React.createElement("a", {className: "dashboard-item", href: "#" + this.props.url}, " ", this.props.title, " ")
     );
   }
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/DashItem.js","/")
-},{"buffer":7,"oMfpAn":10}],3:[function(require,module,exports){
+},{"buffer":8,"oMfpAn":11}],3:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
-var MainImage = require('./MainImage');
-var ImageText = require('./ImageText');
+/**
+* @jsx React.DOM
+*/
+var Dash = require('./Dash');
+var ImageComponent = require('./ImageComponent');
+// var ImageStore = require('./stores/ImageStore');
+
+module.exports = React.createClass({displayName: 'exports',
+    render: function () {
+      return (
+        React.createElement("div", {className: "image-view"}, 
+          React.createElement(Dash, null), 
+          React.createElement(ImageComponent, {loading: this.state.loading, imgURL: this.state.imgURL})
+        )
+      );
+    },
+
+    getInitialState: function () {
+      return {loading: true, imgURL: ''};
+    },
+
+    componentDidMount: function () {
+      this.getImage();
+    },
+
+    getImage: function () {
+      var that = this;
+
+      this.setState({loading: true});
+      $.get(this.props.description, function (json) {
+        that.updateImage(json.gif);
+      });
+    },
+
+    updateImage: function (url) {
+      var that = this;
+      this.setState({imgURL: url});
+
+      $('.image').imagesLoaded().done(function () {
+        that.setState({loading: false});
+      });
+    }
+});
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageApp.js","/")
+},{"./Dash":1,"./ImageComponent":4,"buffer":8,"oMfpAn":11}],4:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var LoadableImage = require('./LoadableImage');
+var ImageTitle = require('./ImageTitle');
 
 module.exports = React.createClass({displayName: 'exports',
   render: function () {
     return (
       React.createElement("div", {className: "image-container"}, 
-        React.createElement(MainImage, {url: this.props.url, loading: this.props.loading}), 
-        React.createElement(ImageText, {url: this.props.url, loading: this.props.loading})
+        React.createElement(LoadableImage, {imgURL: this.props.imgURL, loading: this.props.loading}), 
+        React.createElement(ImageTitle, {imgURL: this.props.imgURL, loading: this.props.loading})
       )
     );
   }
 });
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageContainer.js","/")
-},{"./ImageText":4,"./MainImage":5,"buffer":7,"oMfpAn":10}],4:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageComponent.js","/")
+},{"./ImageTitle":5,"./LoadableImage":6,"buffer":8,"oMfpAn":11}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
     render: function () {
-      var text = this.props.loading ? 'loading...' : this.props.url;
+      var text = this.props.loading ? 'loading...' : this.props.imgURL;
 
       return (
           React.createElement("h2", null, " ", text, " ")
@@ -66,8 +105,8 @@ module.exports = React.createClass({displayName: 'exports',
     }
 });
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageText.js","/")
-},{"buffer":7,"oMfpAn":10}],5:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageTitle.js","/")
+},{"buffer":8,"oMfpAn":11}],6:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
   render: function () {
@@ -80,57 +119,41 @@ module.exports = React.createClass({displayName: 'exports',
       );
     } else {
       return (
-        React.createElement("img", {className: "image", src: this.props.url})
+        React.createElement("img", {className: "image", src: this.props.imgURL})
       );
     }
   }
 });
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/MainImage.js","/")
-},{"buffer":7,"oMfpAn":10}],6:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/LoadableImage.js","/")
+},{"buffer":8,"oMfpAn":11}],7:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
 * @jsx React.DOM
 */
 var Dash = require('./Dash');
-var ImageContainer = require('./ImageContainer');
+var ImageApp = require('./ImageApp');
 
-$(function () {
-  var App = React.createClass({displayName: 'App',
-    getInitialState: function () {
-      return {route: '', url: '', imageText: ''}; // TODO only should care about route
-    },
-
-    updateImage: function (url) { // TODO move this somewhere?
-      var that = this;
-      this.setState({route: 'image', url: url, loading: true});
-
-      $('.image').imagesLoaded().done(function () {
-        that.setState({loading: false});
-      });
-    },
-
-    render: function () {
-      if (this.state.route === '') {
-        return (
-          React.createElement(Dash, {updateImage: this.updateImage})
-        );
-      } else if (this.state.route === 'image') {
-        return (
-          React.createElement("div", {className: "image-view"}, 
-            React.createElement(Dash, {updateImage: this.updateImage}), 
-            React.createElement(ImageContainer, {loading: this.state.loading, url: this.state.url})
-          )
-        );
-      }
-    }
-  });
-
-  React.render(React.createElement(App, null), document.getElementById('app'));
+var Router = Backbone.Router.extend({
+  routes: {
+    "": "index",
+    "image/:key": "image"
+  },
+  index: function () {
+    React.render(React.createElement(Dash, null), document.getElementById('app'));
+  },
+  image: function (key) {
+    console.log("getting image of type[", key.trim(), "]");
+    React.render(React.createElement(ImageApp, {description: key}), document.getElementById('app'))
+  }
 });
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_c9c88d43.js","/")
-},{"./Dash":1,"./ImageContainer":3,"buffer":7,"oMfpAn":10}],7:[function(require,module,exports){
+new Router();
+
+Backbone.history.start();
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_73752e24.js","/")
+},{"./Dash":1,"./ImageApp":3,"buffer":8,"oMfpAn":11}],8:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1243,7 +1266,7 @@ function assert (test, message) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer")
-},{"base64-js":8,"buffer":7,"ieee754":9,"oMfpAn":10}],8:[function(require,module,exports){
+},{"base64-js":9,"buffer":8,"ieee754":10,"oMfpAn":11}],9:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -1367,7 +1390,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib")
-},{"buffer":7,"oMfpAn":10}],9:[function(require,module,exports){
+},{"buffer":8,"oMfpAn":11}],10:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
@@ -1455,7 +1478,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754")
-},{"buffer":7,"oMfpAn":10}],10:[function(require,module,exports){
+},{"buffer":8,"oMfpAn":11}],11:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // shim for using process in browser
 
@@ -1522,4 +1545,4 @@ process.chdir = function (dir) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process/browser.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process")
-},{"buffer":7,"oMfpAn":10}]},{},[6])
+},{"buffer":8,"oMfpAn":11}]},{},[7])
