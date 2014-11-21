@@ -11,6 +11,7 @@ function create (key) {
   _key = key;
 }
 
+// thinks that can be called on KeyStore
 var KeyStore = assign({}, EventEmitter.prototype, {
   getKey: function() {
     return _key;
@@ -29,6 +30,7 @@ var KeyStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+// things that can be called on the KeyActions
 AppDispatcher.register(function (payload) {
   var action = payload.action;
   var key;

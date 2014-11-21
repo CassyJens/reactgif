@@ -3,10 +3,10 @@
 */
 var Dash = require('./Dash');
 var ImageComponent = require('./ImageComponent');
-var KeyStore = require('../stores/KeyStore');
+var ImageStore = require('../stores/ImageStore');
 
-function getKeyState() {
-  return {key: KeyStore.getKey()};
+function getImageState() {
+  return {imgURL: ImageStore.getLast()};
 }
 
 module.exports = React.createClass({
@@ -14,40 +14,26 @@ module.exports = React.createClass({
       return (
         <div className="image-view">
           <Dash />
-          <ImageComponent loading={this.state.loading} imgURL={this.state.imgURL} />
+          <ImageComponent imgURL={this.state.imgURL} />
         </div>
       );
     },
 
     getInitialState: function () {
-      return $.extend({loading: true, imgURL: ''}, getKeyState());
+      return getImageState();
     },
 
     componentDidMount: function() {
-      this.getImage(); // the first time it's mounted, get an image
-      KeyStore.addChangeListener(this._onKeyChange);
+      ImageStore.addChangeListener(this._onImageChange);
     },
 
     componentWillUnmount: function() {
-      KeyStore.removeChangeListener(this._onKeyChange);
+      ImageStore.removeChangeListener(this._onImageChange);
     },
 
-    getImage: function () {
-      var that = this;
+    _onImageChange: function () {
+      console.log("image changed", getImageState());
 
-      this.setState({loading: true});
-      $.get(this.state.key, function (json) {
-        that.setState({imgURL: json.gif});
-        $('.image').imagesLoaded().done(function () {
-          that.setState({loading: false});
-        });
-      });
-    },
-
-    _onKeyChange: function () {
-      var that = this;
-
-      this.setState(getKeyState()); // need to cherry pick last key item
-      this.getImage();
+      this.setState(getImageState());
     }
 });

@@ -1,22 +1,60 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
-var KeyConstants = require('../constants/KeyConstants');
+var ImageConstants = require('../constants/ImageConstants');
 
-// KeyActions
+// ImageActions
 module.exports = {
 
-  create: function (key) {
+  create: function (imgURL) {
     AppDispatcher.handleViewAction({
-      actionType: KeyConstants.KEY_CREATE,
-      key: key
+      actionType: ImageConstants.IMAGE_CREATE,
+      imgURL: imgURL
+    });
+  },
+
+  destroy: function (id) {
+    AppDispatcher.handleViewAction({
+      actionType: ImageConstants.IMAGE_DESTROY,
+      id: id
+    });
+  },
+
+  destroyCompleted: function() {
+    AppDispatcher.handleViewAction({
+      actionType: ImageConstants.IMAGE_DESTROY_COMPLETED
+    });
+  }
+
+}
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../actions/ImageActions.js","/../actions")
+},{"../constants/ImageConstants":11,"../dispatcher/AppDispatcher":13,"buffer":19,"oMfpAn":23}],2:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var LoadingConstants = require('../constants/LoadingConstants');
+
+// Loading Actions
+module.exports = {
+
+  set: function (isLoading) {
+    AppDispatcher.handleViewAction({
+      actionType: LoadingConstants.LOADING_SET,
+      isLoading: isLoading
+    });
+  },
+
+  toggle: function (isLoading) {
+    AppDispatcher.handleViewAction({
+      actionType: LoadingConstants.LOADING_TOGGLE,
+      isLoading: isLoading
     });
   }
 
 };
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../actions/KeyActions.js","/../actions")
-},{"../constants/KeyConstants":9,"../dispatcher/AppDispatcher":10,"buffer":15,"oMfpAn":19}],2:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../actions/LoadingActions.js","/../actions")
+},{"../constants/LoadingConstants":12,"../dispatcher/AppDispatcher":13,"buffer":19,"oMfpAn":23}],3:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var DashItem = require('./DashItem');
 
@@ -36,7 +74,7 @@ module.exports = React.createClass({displayName: 'exports',
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/Dash.js","/")
-},{"./DashItem":3,"buffer":15,"oMfpAn":19}],3:[function(require,module,exports){
+},{"./DashItem":4,"buffer":19,"oMfpAn":23}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
   render: function () {
@@ -47,17 +85,17 @@ module.exports = React.createClass({displayName: 'exports',
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/DashItem.js","/")
-},{"buffer":15,"oMfpAn":19}],4:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
 * @jsx React.DOM
 */
 var Dash = require('./Dash');
 var ImageComponent = require('./ImageComponent');
-var KeyStore = require('../stores/KeyStore');
+var ImageStore = require('../stores/ImageStore');
 
-function getKeyState() {
-  return {key: KeyStore.getKey()};
+function getImageState() {
+  return {imgURL: ImageStore.getLast()};
 }
 
 module.exports = React.createClass({displayName: 'exports',
@@ -65,46 +103,32 @@ module.exports = React.createClass({displayName: 'exports',
       return (
         React.createElement("div", {className: "image-view"}, 
           React.createElement(Dash, null), 
-          React.createElement(ImageComponent, {loading: this.state.loading, imgURL: this.state.imgURL})
+          React.createElement(ImageComponent, {imgURL: this.state.imgURL})
         )
       );
     },
 
     getInitialState: function () {
-      return $.extend({loading: true, imgURL: ''}, getKeyState());
+      return getImageState();
     },
 
     componentDidMount: function() {
-      this.getImage(); // the first time it's mounted, get an image
-      KeyStore.addChangeListener(this._onKeyChange);
+      ImageStore.addChangeListener(this._onImageChange);
     },
 
     componentWillUnmount: function() {
-      KeyStore.removeChangeListener(this._onKeyChange);
+      ImageStore.removeChangeListener(this._onImageChange);
     },
 
-    getImage: function () {
-      var that = this;
+    _onImageChange: function () {
+      console.log("image changed", getImageState());
 
-      this.setState({loading: true});
-      $.get(this.state.key, function (json) {
-        that.setState({imgURL: json.gif});
-        $('.image').imagesLoaded().done(function () {
-          that.setState({loading: false});
-        });
-      });
-    },
-
-    _onKeyChange: function () {
-      var that = this;
-
-      this.setState(getKeyState()); // need to cherry pick last key item
-      this.getImage();
+      this.setState(getImageState());
     }
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageApp.js","/")
-},{"../stores/KeyStore":11,"./Dash":2,"./ImageComponent":5,"buffer":15,"oMfpAn":19}],5:[function(require,module,exports){
+},{"../stores/ImageStore":14,"./Dash":3,"./ImageComponent":6,"buffer":19,"oMfpAn":23}],6:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var LoadableImage = require('./LoadableImage');
 var ImageTitle = require('./ImageTitle');
@@ -113,15 +137,15 @@ module.exports = React.createClass({displayName: 'exports',
   render: function () {
     return (
       React.createElement("div", {className: "image-container"}, 
-        React.createElement(LoadableImage, {imgURL: this.props.imgURL, loading: this.props.loading}), 
-        React.createElement(ImageTitle, {imgURL: this.props.imgURL, loading: this.props.loading})
+        React.createElement(LoadableImage, {imgURL: this.props.imgURL}), 
+        React.createElement(ImageTitle, {imgURL: this.props.imgURL})
       )
     );
   }
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageComponent.js","/")
-},{"./ImageTitle":6,"./LoadableImage":7,"buffer":15,"oMfpAn":19}],6:[function(require,module,exports){
+},{"./ImageTitle":7,"./LoadableImage":8,"buffer":19,"oMfpAn":23}],7:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
     render: function () {
@@ -134,46 +158,93 @@ module.exports = React.createClass({displayName: 'exports',
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/ImageTitle.js","/")
-},{"buffer":15,"oMfpAn":19}],7:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],8:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 module.exports = React.createClass({displayName: 'exports',
   render: function () {
-    if (this.props.loading) {
-      return (
-        React.createElement("div", {id: "loader", className: "spinner"}, 
-          React.createElement("div", {className: "double-bounce1"}), 
-          React.createElement("div", {className: "double-bounce2"})
-        )
-      );
-    } else {
-      return (
-        React.createElement("img", {className: "image", src: this.props.imgURL})
-      );
-    }
+    return (
+      React.createElement("img", {className: "image", src: this.props.imgURL})
+    );
   }
 });
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/LoadableImage.js","/")
-},{"buffer":15,"oMfpAn":19}],8:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],9:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var LoadingStore = require('../stores/LoadingStore');
+
+var getLoadingState = function () {
+  return {
+    isLoading: LoadingStore.getLoading()
+  };
+}
+
+module.exports = React.createClass({displayName: 'exports',
+  render: function () {
+    return (
+      React.createElement("div", {class: "loading"}, 
+         this.state.isLoading ? React.createElement("div", {className: "loading-screen"}, " Loading... ") : null
+      )
+    );
+  },
+
+  getInitialState: function () {
+    return getLoadingState();
+  },
+
+  componentDidMount: function() {
+    LoadingStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function() {
+    LoadingStore.removeChangeListener(this._onChange);
+  },
+
+  _onChange: function () {
+    this.setState(getLoadingState());
+  }
+});
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/Loading.js","/")
+},{"../stores/LoadingStore":15,"buffer":19,"oMfpAn":23}],10:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
 * @jsx React.DOM
 */
 var Dash = require('./Dash');
+var Loading = require('./Loading');
 var ImageApp = require('./ImageApp');
-var KeyActions = require('../actions/KeyActions');
+var LoadingActions = require('../actions/LoadingActions');
+var ImageActions = require('../actions/ImageActions');
 
 var Router = Backbone.Router.extend({
   routes: {
     "": "index",
-    "image/:apiKey": "image"
+    "image/:apiKey": "apiKey",
+    "image/:apiKey/:imgURL": "imgURL"
   },
+
   index: function () {
-    React.render(React.createElement(Dash, null), document.getElementById('app'));
+    React.render(React.createElement("div", {id: "main"}, " ", React.createElement(Loading, null), " ", React.createElement(Dash, null), " "), document.getElementById('app'));
   },
-  image: function (apiKey) {
-    React.render(React.createElement(ImageApp, null), document.getElementById('app'));
-    KeyActions.create(apiKey);
+
+  apiKey: function (apiKey) {
+    var that = this;
+
+    React.render(React.createElement("div", {id: "main"}, " ", React.createElement(Loading, null), " ", React.createElement(ImageApp, null), " "), document.getElementById('app'));
+    LoadingActions.set(true);
+    $.get(apiKey, function (json) {
+      that.navigate("image/" + apiKey + "/" + encodeURIComponent(json.gif), {
+        trigger: true
+      });
+    });
+  },
+
+  imgURL: function (apiKey, imgURL) {
+    ImageActions.create(imgURL);
+    $('.image').imagesLoaded().done(function () {
+      LoadingActions.set(false);
+    });
   }
 });
 
@@ -181,17 +252,29 @@ new Router();
 
 Backbone.history.start();
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_2e2c7416.js","/")
-},{"../actions/KeyActions":1,"./Dash":2,"./ImageApp":4,"buffer":15,"oMfpAn":19}],9:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_2f4f0b2c.js","/")
+},{"../actions/ImageActions":1,"../actions/LoadingActions":2,"./Dash":3,"./ImageApp":5,"./Loading":9,"buffer":19,"oMfpAn":23}],11:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var keyMirror = require('keymirror');
 
 module.exports = keyMirror({
-  KEY_CREATE: null
+  IMAGE_CREATE: null,
+  IMAGE_DESTROY: null,
+  IMAGE_DESTROY_COMPLETED: null
 });
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../constants/KeyConstants.js","/../constants")
-},{"buffer":15,"keymirror":20,"oMfpAn":19}],10:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../constants/ImageConstants.js","/../constants")
+},{"buffer":19,"keymirror":24,"oMfpAn":23}],12:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var keyMirror = require('keymirror');
+
+module.exports = keyMirror({
+  LOADING_SET: null,
+  LOADING_TOGGLE: null
+});
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../constants/LoadingConstants.js","/../constants")
+},{"buffer":19,"keymirror":24,"oMfpAn":23}],13:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
@@ -208,24 +291,108 @@ var AppDispatcher = assign(new Dispatcher(), {
 module.exports = AppDispatcher;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../dispatcher/AppDispatcher.js","/../dispatcher")
-},{"buffer":15,"flux":12,"oMfpAn":19,"object-assign":21}],11:[function(require,module,exports){
+},{"buffer":19,"flux":16,"oMfpAn":23,"object-assign":25}],14:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
-var KeyConstants = require('../constants/KeyConstants');
+var ImageConstants = require('../constants/ImageConstants');
+var ImageStore = require('../stores/ImageStore');
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
 
-var _key = '';
+var _images = [];
 
-function create (key) {
-  _key = key;
+function create (imgURL) {
+  _images.push(imgURL);
 }
 
-var KeyStore = assign({}, EventEmitter.prototype, {
-  getKey: function() {
-    return _key;
+function destroy () {
+  if (_images.length > 0) {
+    images.pop();
+  } else {
+    return {};
+  }
+}
+
+ImageStore = assign({}, EventEmitter.prototype, {
+  getAll: function () {
+    return _images;
+  },
+
+  getLast: function () {
+    return _images[_images.length - 1];
+  },
+
+  emitChange: function () {
+    this.emit(CHANGE_EVENT);
+  },
+
+  addChangeListener: function (callback) {
+    this.on(CHANGE_EVENT, callback);
+  },
+
+  removeChangeListener: function (callback) {
+    this.removeListener(CHANGE_EVENT, callback);
+  }
+});
+
+AppDispatcher.register(function (payload) {
+  var action = payload.action;
+  var imgURL;
+  console.log(action);
+
+  switch (action.actionType) {
+    case ImageConstants.IMAGE_CREATE:
+      imgURL = action.imgURL.trim();
+      if (imgURL !== '') {
+        create(imgURL);
+      }
+      break;
+
+    case ImageConstants.IMAGE_DESTROY:
+      destroy();
+      break;
+
+    case ImageConstants.IMAGE_DESTROY_COMPLETED:
+      destroyCompleted();
+      break;
+
+    default:
+      return true;
+  }
+
+  ImageStore.emitChange();
+
+  return true;
+});
+
+module.exports = ImageStore;
+
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../stores/ImageStore.js","/../stores")
+},{"../constants/ImageConstants":11,"../dispatcher/AppDispatcher":13,"../stores/ImageStore":14,"buffer":19,"events":22,"oMfpAn":23,"object-assign":25}],15:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var EventEmitter = require('events').EventEmitter;
+var LoadingConstants = require('../constants/LoadingConstants');
+var assign = require('object-assign');
+
+var CHANGE_EVENT = 'change';
+
+var _isLoading = false;
+
+function setLoading (isLoading) {
+  _isLoading = isLoading;
+}
+
+function toggleLoading () {
+  _isLoading = !_isLoading;
+}
+
+// Things that can be called on the LoadingStore
+var LoadingStore = assign({}, EventEmitter.prototype, {
+  getLoading: function() {
+    return _isLoading;
   },
 
   emitChange: function() {
@@ -241,31 +408,33 @@ var KeyStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+// Things that can be called on LoadingActions
 AppDispatcher.register(function (payload) {
   var action = payload.action;
-  var key;
+  var isLoading = action.isLoading;
 
   switch (action.actionType) {
-    case KeyConstants.KEY_CREATE:
-      key = action.key.trim();
-      if (key !== '') {
-        create(key);
-      }
+    case LoadingConstants.LOADING_SET:
+      setLoading(isLoading);
+      break;
+
+    case LoadingConstants.LOADING_TOGGLE:
+      toggleLoading();
       break;
 
     default:
       return true;
   }
 
-  KeyStore.emitChange();
+  LoadingStore.emitChange();
 
   return true;
 });
 
-module.exports = KeyStore;
+module.exports = LoadingStore;
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../stores/KeyStore.js","/../stores")
-},{"../constants/KeyConstants":9,"../dispatcher/AppDispatcher":10,"buffer":15,"events":18,"oMfpAn":19,"object-assign":21}],12:[function(require,module,exports){
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../stores/LoadingStore.js","/../stores")
+},{"../constants/LoadingConstants":12,"../dispatcher/AppDispatcher":13,"buffer":19,"events":22,"oMfpAn":23,"object-assign":25}],16:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copyright (c) 2014, Facebook, Inc.
@@ -279,7 +448,7 @@ module.exports = KeyStore;
 module.exports.Dispatcher = require('./lib/Dispatcher')
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/flux/index.js","/../../node_modules/flux")
-},{"./lib/Dispatcher":13,"buffer":15,"oMfpAn":19}],13:[function(require,module,exports){
+},{"./lib/Dispatcher":17,"buffer":19,"oMfpAn":23}],17:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*
  * Copyright (c) 2014, Facebook, Inc.
@@ -533,7 +702,7 @@ var _prefix = 'ID_';
 module.exports = Dispatcher;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/flux/lib/Dispatcher.js","/../../node_modules/flux/lib")
-},{"./invariant":14,"buffer":15,"oMfpAn":19}],14:[function(require,module,exports){
+},{"./invariant":18,"buffer":19,"oMfpAn":23}],18:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copyright (c) 2014, Facebook, Inc.
@@ -590,7 +759,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/flux/lib/invariant.js","/../../node_modules/flux/lib")
-},{"buffer":15,"oMfpAn":19}],15:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],19:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1703,7 +1872,7 @@ function assert (test, message) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer")
-},{"base64-js":16,"buffer":15,"ieee754":17,"oMfpAn":19}],16:[function(require,module,exports){
+},{"base64-js":20,"buffer":19,"ieee754":21,"oMfpAn":23}],20:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -1827,7 +1996,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib")
-},{"buffer":15,"oMfpAn":19}],17:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],21:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
@@ -1915,7 +2084,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754")
-},{"buffer":15,"oMfpAn":19}],18:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],22:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -2220,7 +2389,7 @@ function isUndefined(arg) {
 }
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/events/events.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/events")
-},{"buffer":15,"oMfpAn":19}],19:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],23:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // shim for using process in browser
 
@@ -2287,7 +2456,7 @@ process.chdir = function (dir) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process/browser.js","/../../node_modules/gulp-browserify/node_modules/browserify/node_modules/process")
-},{"buffer":15,"oMfpAn":19}],20:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],24:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -2344,7 +2513,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/keymirror/index.js","/../../node_modules/keymirror")
-},{"buffer":15,"oMfpAn":19}],21:[function(require,module,exports){
+},{"buffer":19,"oMfpAn":23}],25:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -2385,4 +2554,4 @@ module.exports = Object.assign || function (target, source) {
 };
 
 }).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../../node_modules/object-assign/index.js","/../../node_modules/object-assign")
-},{"buffer":15,"oMfpAn":19}]},{},[8])
+},{"buffer":19,"oMfpAn":23}]},{},[10])

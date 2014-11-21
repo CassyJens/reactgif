@@ -5,8 +5,8 @@ module.exports = React.createClass({
   render: function () {
     return (
       <div className="image-container">
-        <LoadableImage imgURL={this.props.imgURL} loading={this.props.loading} />
-        <ImageTitle imgURL={this.props.imgURL} loading={this.props.loading} />
+        <LoadableImage imgURL={this.props.imgURL} />
+        <ImageTitle imgURL={this.props.imgURL} />
       </div>
     );
   }
