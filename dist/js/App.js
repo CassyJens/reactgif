@@ -182,8 +182,18 @@ var getLoadingState = function () {
 module.exports = React.createClass({displayName: 'exports',
   render: function () {
     return (
-      React.createElement("div", {class: "loading"}, 
-         this.state.isLoading ? React.createElement("div", {className: "loading-screen"}, " Loading... ") : null
+      React.createElement("section", {id: "loading"}, 
+         this.state.isLoading
+            ? React.createElement("div", null, 
+                React.createElement("div", {className: "loading-background"}
+                ), 
+                React.createElement("div", {id: "loader", className: "spinner"}, 
+                  React.createElement("div", {className: "double-bounce1"}, " "), 
+                  React.createElement("div", {className: "double-bounce2"}, " ")
+                )
+              )
+            : null
+        
       )
     );
   },
@@ -231,7 +241,6 @@ var Router = Backbone.Router.extend({
   apiKey: function (apiKey) {
     var that = this;
 
-    React.render(React.createElement("div", {id: "main"}, " ", React.createElement(Loading, null), " ", React.createElement(ImageApp, null), " "), document.getElementById('app'));
     LoadingActions.set(true);
     $.get(apiKey, function (json) {
       that.navigate("image/" + apiKey + "/" + encodeURIComponent(json.gif), {
@@ -241,6 +250,8 @@ var Router = Backbone.Router.extend({
   },
 
   imgURL: function (apiKey, imgURL) {
+    React.render(React.createElement("div", {id: "main"}, " ", React.createElement(Loading, null), " ", React.createElement(ImageApp, null), " "), document.getElementById('app'));
+
     ImageActions.create(imgURL);
     $('.image').imagesLoaded().done(function () {
       LoadingActions.set(false);
@@ -252,7 +263,7 @@ new Router();
 
 Backbone.history.start();
 
-}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_2f4f0b2c.js","/")
+}).call(this,require("oMfpAn"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_e776d140.js","/")
 },{"../actions/ImageActions":1,"../actions/LoadingActions":2,"./Dash":3,"./ImageApp":5,"./Loading":9,"buffer":19,"oMfpAn":23}],11:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var keyMirror = require('keymirror');

@@ -9,9 +9,18 @@ var getLoadingState = function () {
 module.exports = React.createClass({
   render: function () {
     return (
-      <div class="loading">
-        { this.state.isLoading ? <div className="loading-screen"> Loading... </div> : null }
-      </div>
+      <section id="loading">
+        { this.state.isLoading
+            ? <div>
+                <div className="loading-background"></div>
+                <div id="loader" className="spinner">
+                  <div className="double-bounce1"> </div>
+                  <div className="double-bounce2"> </div>
+                </div>
+              </div>
+            : null
+        }
+      </section>
     );
   },
 

@@ -21,7 +21,6 @@ var Router = Backbone.Router.extend({
   apiKey: function (apiKey) {
     var that = this;
 
-    React.render(<div id="main"> <Loading /> <ImageApp /> </div>, document.getElementById('app'));
     LoadingActions.set(true);
     $.get(apiKey, function (json) {
       that.navigate("image/" + apiKey + "/" + encodeURIComponent(json.gif), {
@@ -31,6 +30,8 @@ var Router = Backbone.Router.extend({
   },
 
   imgURL: function (apiKey, imgURL) {
+    React.render(<div id="main"> <Loading /> <ImageApp /> </div>, document.getElementById('app'));
+
     ImageActions.create(imgURL);
     $('.image').imagesLoaded().done(function () {
       LoadingActions.set(false);
